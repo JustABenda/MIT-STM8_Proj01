@@ -42,7 +42,6 @@ void setup(void)
     
 }
 
-int i = 0;
 void main_task(void){
 
 }
