@@ -19,10 +19,14 @@ void rx_action(void)
     else index++;
 }
 
-INTERRUPT_HANDLER(TIM2_UPD_OVF_IRQHandler, ITC_IRQ_TIM2_OVF){
+/*INTERRUPT_HANDLER(TIM2_UPD_OVF_IRQHandler, ITC_IRQ_TIM2_OVF){
     TIM2_ClearFlag(TIM2_FLAG_UPDATE);
-}
+    printf("Hello World");
+}*/
 
+uint16_t RGB_R = 0;
+uint16_t RGB_G = 0;
+uint16_t RGB_B = 0;
 
 void setup(void)
 {
@@ -38,12 +42,35 @@ void setup(void)
     sct_init();
     sct_reset();
 
-    attach_timer(TIMER2, TIM2_PRESCALER_32, 65535);
+    //attach_timer(TIMER2, TIM2_PRESCALER_32, 65535);
+    attach_pwm(OC21, TIM2_PRESCALER_16, 6999, 3000, FALSE);
+    attach_pwm(OC22, TIM2_PRESCALER_16, 6999, 3000, TRUE);
+    attach_pwm(OC23, TIM2_PRESCALER_16, 6999, 3000, TRUE);
+
+    update_pwm_duty(OC21, RGB_B);
+    update_pwm_duty(OC22, RGB_G);
+    update_pwm_duty(OC23, RGB_R);
     
 }
-
+bool print = FALSE;
 void main_task(void){
-
+    if(isUp(controls)){
+        RGB_R = RGB_R >= 6900 ? 0 : RGB_R + 100;
+        print = TRUE;
+    }
+    if(isSelect(controls)){
+        RGB_G = RGB_G >= 6900 ? 0 : RGB_G + 50;
+        print = TRUE;
+    }
+    if(isDown(controls)){
+        RGB_B = RGB_B >= 6900 ? 0 : RGB_B + 150;
+        print = TRUE;
+    }
+    if(print) printf("RGB: %d %d %d\n", RGB_R, RGB_G, RGB_B);
+    print = FALSE;
+    update_pwm_duty(OC21, RGB_B);
+    update_pwm_duty(OC22, RGB_G);
+    update_pwm_duty(OC23, RGB_R);
 }
 
 int main(void)
